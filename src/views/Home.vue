@@ -74,7 +74,7 @@ export default {
   },
   data() {
     return {
-      isLogin: 'regStep3',
+      isLogin: 'regStep1',
       isRegister1: true,
       ru: ru,
       phone: {
@@ -110,6 +110,37 @@ export default {
 
   //================== Methods ==========================/
   methods: {
+
+
+    changeName(e) {
+      console.log(e.target.value);
+      this.msgValid.name = false;
+    },
+    changeLastName(e) {
+      console.log(e.target.value);
+      this.msgValid.lastname = false;
+    },
+    changePass(e) {
+      this.msgValid.password = false;
+      this.msgValid.minSimbol = false;
+      this.msgValid.passAndpassConf = false;
+    },
+    changePass2(e) {
+      this.msgValid.confirmPassword = false;
+      this.msgValid.passAndpassConf = false;
+    },
+    toLogin() {
+      this.isLogin = 'login';
+    },
+    onInput(e) {
+      console.log("number ", e);
+      if (isValid) {
+        this.isValid = isValid;
+      }
+    },
+    registration() {
+      this.isLogin = 'regStep1';
+    },
 
     // ================ REGister Step - 1 ===============//
     registerStep1() {
@@ -171,6 +202,81 @@ export default {
     },
 
 
+    registerStep3() {
+      let password = this.register.password.trim();
+      let cPassword = this.register.confirmPassword.trim();
+
+      const config = {
+        headers: { 'Authorization': `Bearer ${this.register.token}` }
+      };
+
+      if (this.register.name.length < 1) {
+        this.msgValid.name = true;
+        return;
+      }
+      
+      if (this.register.lastname.length < 1) {
+        this.msgValid.lastname = true;
+        return;
+      }
+
+      if (this.register.password.length < 1) {
+        this.msgValid.password = true;
+        return;
+      }
+
+      if (this.register.confirmPassword < 1) {
+        this.msgValid.confirmPassword = true;
+        return;
+      }
+
+      if (this.register.password !== this.register.confirmPassword) {
+        this.msgValid.passAndpassConf = true;
+        return;
+      }
+
+      
+
+      if (password === cPassword && password.length > 7) {
+        let obj = {
+          name: this.register.name,
+          lastname: this.register.lastname,
+          birthday: this.date,
+          gender: (this.selected === 'Мужской') ? 'male' : 'female',
+          password: this.register.password
+        };
+        console.log("data ", obj);
+
+        this.$http.post('/signup/data', obj, config)
+          .then(res => {
+          this.$modal.show('dialog', {
+          text: 'Вы успешно зарегистрировались!',
+          buttons: [
+            {
+              title: 'Ок'
+            }
+          ]});
+
+          setTimeout(()=>{
+            this.isLogin = 'login';
+          }, 4000);
+            
+
+          })
+          .catch(err => {
+            this.$modal.show('dialog', {
+            text: 'Ошибка введеных данных!',
+            buttons: [
+              {
+                title: 'Закрыть'
+              }
+          ]});
+          });
+
+      } else {
+        this.msgValid.minSimbol = true;
+      }
+    },
 
   },
 };
@@ -182,235 +288,6 @@ export default {
   //     };
   //   }
   // },
-  // methods: {
-  //   show () {
-  //     this.$modal.show('hello-world');
-  //   },
-  //   hide () {
-  //     this.$modal.hide('hello-world');
-  //   },
-  //   changeName(e) {
-  //     console.log(e.target.value);
-  //     this.msgValid.name = false;
-  //   },
-  //   changeLastName(e) {
-  //     console.log(e.target.value);
-  //     this.msgValid.lastname = false;
-  //   },
-  //   changePass(e) {
-  //     this.msgValid.password = false;
-  //     this.msgValid.minSimbol = false;
-  //     this.msgValid.passAndpassConf = false;
-  //   },
-  //   changePass2(e) {
-  //     this.msgValid.confirmPassword = false;
-  //     this.msgValid.passAndpassConf = false;
-  //   },
-  //   toLogin() {
-  //     this.isLogin = 'login';
-  //   },
-  //   onInput(e) {
-  //     console.log("number ", e);
-  //     if (isValid) {
-  //       this.isValid = isValid;
-  //     }
-  //   },
-  //   registration() {
-  //     this.isLogin = 'regStep1';
-  //   },
-  //   registerStep1() {
- 
-  //     if (this.phone.number.length === 11) {
-  //       this.phone.number = 7 + this.phone.number.slice(1);
-        
-  //       this.$http.post('/signup', {
-  //         phone: this.phone.number,
-  //       })
-  //       .then(res => {
-  //         this.isLogin = 'regStep2';
-  //       })
-  //       .catch(err => {
-  //         this.$modal.show('dialog', {
-  //           text: 'Введите валидный номер телефона!',
-  //           buttons: [
-  //             {
-  //               title: 'Закрыть'
-  //             }
-  //         ]});
-  //       });
-  //     }
-
-  //     if (this.phone.number.length === 10) {
-  //       this.phone.number = 7 + this.phone.number;
-        
-  //       this.$http.post('/signup', {
-  //         phone: this.phone.number,
-  //       })
-  //       .then(res => {
-  //         this.isLogin = 'regStep2';
-          
-  //       })
-  //       .catch(err => {
-  //           this.$modal.show('dialog', {
-  //           text: 'Введите валидный номер телефона!',
-  //           buttons: [
-  //             {
-  //               title: 'Закрыть'
-  //             }
-  //         ]});
-  //       });
-  //     }
-  //   },
-    // registerStep2() {
-    //   let codeSMS = this.register.codeSMS.trim();
-    //   if (codeSMS.length > 5 || codeSMS.length < 5) {
-    //     alert('введите 5 символов');
-    //   } else {
-    //       this.$http.post('/signup/verify-phone', {
-    //         phone: this.phone.number,
-    //         code: this.register.codeSMS,
-    //       })
-    //       .then(res => {
-    //         this.register.token = res.data.access_token;
-    //         this.isLogin = 'regStep3';
-    //       })
-    //       .catch(err => {
-    //         this.$modal.show('dialog', {
-    //         text: 'Ошибка!',
-    //         buttons: [
-    //           {
-    //             title: 'Закрыть'
-    //           }
-    //       ]});
-    //       });
-    //   }
-    // },
-    // registerStep3() {
-    //   let password = this.register.password.trim();
-    //   let cPassword = this.register.confirmPassword.trim();
-
-    //   const config = {
-    //     headers: { 'Authorization': `Bearer ${this.register.token}` }
-    //   };
-
-    //   if (this.register.name.length < 1) {
-    //     this.msgValid.name = true;
-    //     return;
-    //   }
-      
-    //   if (this.register.lastname.length < 1) {
-    //     this.msgValid.lastname = true;
-    //     return;
-    //   }
-
-    //   if (this.register.password.length < 1) {
-    //     this.msgValid.password = true;
-    //     return;
-    //   }
-
-    //   if (this.register.confirmPassword < 1) {
-    //     this.msgValid.confirmPassword = true;
-    //     return;
-    //   }
-
-    //   if (this.register.password !== this.register.confirmPassword) {
-    //     this.msgValid.passAndpassConf = true;
-    //     return;
-    //   }
-
-      
-
-    //   if (password === cPassword && password.length > 7) {
-    //     let obj = {
-    //       name: this.register.name,
-    //       lastname: this.register.lastname,
-    //       birthday: this.date,
-    //       gender: (this.selected === 'Мужской') ? 'male' : 'female',
-    //       password: this.register.password
-    //     };
-    //     console.log("data ", obj);
-
-    //     this.$http.post('/signup/data', obj, config)
-    //       .then(res => {
-    //       this.$modal.show('dialog', {
-    //       text: 'Вы успешно зарегистрировались!',
-    //       buttons: [
-    //         {
-    //           title: 'Ок'
-    //         }
-    //       ]});
-
-    //       setTimeout(()=>{
-    //         this.isLogin = 'login';
-    //       }, 4000);
-            
-
-    //       })
-    //       .catch(err => {
-    //         this.$modal.show('dialog', {
-    //         text: 'Ошибка введеных данных!',
-    //         buttons: [
-    //           {
-    //             title: 'Закрыть'
-    //           }
-    //       ]});
-    //       });
-
-    //   } else {
-    //     this.msgValid.minSimbol = true;
-    //   }
-    // },
-
-    // //================= Login =========================/
-    // loginPhoneChange(e){
-    //   this.loginValidate.login = false;
-    //   this.$modal.hide('dialog');
-    //   if (this.phoneLogin[0]==='8'){
-    //     this.phoneLogin = '+7';
-    //   }
-
-    //   if (!Number(this.phoneLogin.slice(1))) {
-    //     const first = Number(this.phoneLogin.slice(1));
-    //     if (first === 0) {
-    //       return;
-    //     }
-    //     console.log('==========Введите число!============');
-    //     this.loginValidate.login = true;
-    //     this.$modal.show('dialog', {
-    //       text: 'Введите номер телефона!',
-    //       buttons: [
-    //         {
-    //           title: 'Закрыть'
-    //         }
-    //     ]});
-    //   }
-    // },
-    // logIn() {
-    //   this.$http.post('/login', {
-    //     phone: this.phoneLogin,
-    //     password: this.password,
-    //   })
-    //   .then(res => {
-    //     console.log('response ', res.data);
-    //     let token = res.data.access_token;
-    //     if (token) {
-    //       localStorage.setItem('token', token);
-    //       this.$emit('logged');
-    //       this.$router.push('/profile');
-    //     };
-    //   }).catch(err => {
-    //     console.log('error ', err.response.data);
-    //       this.$modal.show('dialog', {
-    //       text: 'Ошибка логина или пароля!',
-    //       buttons: [
-    //         {
-    //           title: 'Закрыть'
-    //         }
-    //     ]});
-    //     });
-    // },
-  // },
-
 </script>
 
 

@@ -30,7 +30,7 @@
           <img src="../assets/calendar.png">
         </div>
         <div class="dateB">
-          <datepicker v-model="date"></datepicker>
+          <datepicker :language="ru"></datepicker>
         </div>
       </li>
       <li class="mg-5">
@@ -62,17 +62,21 @@
 
 <script>
 import PhoneInput from 'vue2-phone-input';
+import Datepicker from 'vuejs-datepicker';
+import {ru} from 'vuejs-datepicker/dist/locale'
 
 
 export default {
   name: 'home',
   components: {
     PhoneInput,
+    Datepicker,
   },
   data() {
     return {
-      isLogin: 'regStep1',
+      isLogin: 'regStep3',
       isRegister1: true,
+      ru: ru,
       phone: {
         code: '',
         number: ''
@@ -109,7 +113,8 @@ export default {
 
     // ================ REGister Step - 1 ===============//
     registerStep1() {
- 
+      console.log('ru ', ru);
+      this.phone.number = (this.phone.number.length === 10) ? '7' + this.phone.number : '7' + this.phone.number.slice(1);
       this.$http.post('/signup', { phone: this.phone.number })
       .then(res => {
         this.isLogin = 'regStep2';
